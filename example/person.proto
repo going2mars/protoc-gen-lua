@@ -6,6 +6,11 @@ message Person {
   extensions 10 to max;
 }
 
+enum Day {
+  One = 1;
+  Two = 2;
+}
+
 message Phone {
     extend Person { repeated Phone phones = 10;}
     enum PHONE_TYPE{
