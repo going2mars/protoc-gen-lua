@@ -303,11 +303,26 @@ def code_gen_field(index, field_desc, env,includes):
     context('.index = %d\n' % index)
     context('.label = %d\n' % field_desc.label)
 
+    enumTypeName = None
+    if field_desc.HasField('type_name'):
+        #type_name = env.get_ref_name(field_desc.type_name).upper().replace('.', '_')
+        type_name = env.get_ref_name(field_desc.type_name)
+        if not type_name.split('.')[0] in [filename+"_pb" for filename in includes]:
+            type_name = type_name.upper().replace(".","_")
+
+        if field_desc.type == FDP.TYPE_MESSAGE:
+            context('.message_type = %s\n' % luasymbol(type_name))
+        else:
+            enumTypeName = type_name
+            context('.enum_type = %s\n' % luasymbol(type_name))
+
     if field_desc.HasField("default_value"):
         context('.has_default_value = true\n')
         value = field_desc.default_value
         if field_desc.type == FDP.TYPE_STRING:
             context('.default_value = "%s"\n'%value)
+        elif field_desc.type == FDP.TYPE_ENUM:
+            context('.default_value = %s_%s_ENUM.number\n'%(luasymbol(enumTypeName), value.upper()))
         else:
             context('.default_value = %s\n'%value)
     else:
@@ -319,17 +334,6 @@ def code_gen_field(index, field_desc, env,includes):
         else:
             default_value = DEFAULT_VALUE[field_desc.type]
         context('.default_value = %s\n' % default_value)
-
-    if field_desc.HasField('type_name'):
-        #type_name = env.get_ref_name(field_desc.type_name).upper().replace('.', '_')
-        type_name = env.get_ref_name(field_desc.type_name)
-        if not type_name.split('.')[0] in [filename+"_pb" for filename in includes]:
-            type_name = type_name.upper().replace(".","_")
-
-        if field_desc.type == FDP.TYPE_MESSAGE:
-            context('.message_type = %s\n' % luasymbol(type_name))
-        else:
-            context('.enum_type = %s\n' % luasymbol(type_name))
 
     if field_desc.HasField('extendee'):
         type_name = env.get_ref_name(field_desc.extendee)
@@ -422,9 +426,9 @@ def code_gen_file(proto_file, env, is_gen):
         lua('local protobuf = require "protobuf"\n')
         for i in includes:
             lua('local %s_pb = require("%s_pb")\n' % (i, i))
-        lua('cc.exports.%s_pb = {}\n' % env.filename) #just for cocos
+        lua('pcall(function() cc.exports.%s_pb={} end) -- for cocoslua\n' % env.filename) # for cocoslua
         lua("module('%s_pb')\n" % env.filename)
-        lua('local %s = {}\n' % _auxtable_) #just for cocos
+        lua('local %s = {}\n' % _auxtable_)
 
         lua('\n\n')
         map(lua, env.descriptor)
