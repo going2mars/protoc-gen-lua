@@ -1,7 +1,11 @@
- cd ../luascript
-for %%i in (*.proto) do (
-echo %%i
-"..\protoc-gen-lua-master\protoc.exe" --python_out=. %%i
+@echo off
+
+set protoPath=..\proto
+set luascriptPath=..\luascript
+
+for %%i in (%protoPath%\*.proto) do (
+	echo %%i
+	protoc.exe --proto_path=%protoPath% --python_out=%luascriptPath% %%i
 )
-echo end
+
 pause
