@@ -1,0 +1,11 @@
+
+message Grade {
+    message Inner {
+        enum InnerEnum {
+            gi1 = 1;
+            gi2 = 2;
+        }
+    }
+    optional Inner.InnerEnum gradeInner = 1 [default = gi1];
+    extensions 100 to 199;
+}
