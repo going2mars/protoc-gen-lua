@@ -3,6 +3,6 @@ import "grand.proto";
 message Person {
   required Grade.Inner.InnerEnum persorInner = 1 [default = gi2];
   extend Grade {
-    optional PokerPlayerInfo ppp = 110;
+    optional Person ppp = 110;
   } 
 }
