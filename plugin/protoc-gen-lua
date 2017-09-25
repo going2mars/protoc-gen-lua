@@ -29,6 +29,16 @@ luasymbol = lambda protoName : "%s.%s" % (_auxtable_, protoName)
 importedEnumValue = lambda typename, value : typename[:typename.rfind(".") + 1] + value
 containedEnumValue = lambda typename, value: '%s_%s_ENUM.number' % (typename, value.upper())
 
+def unique (arr):
+    ret = []
+    if len(arr) > 0:
+        ret.append(arr[0])
+        for i in arr:
+            if i != ret[-1]:
+                ret.append(i)
+    return ret
+
+
 FDP = plugin_pb2.descriptor_pb2.FieldDescriptorProto
 
 if sys.platform == "win32":
@@ -315,11 +325,6 @@ def code_gen_field(index, field_desc, env,includes):
         #type_name = env.get_ref_name(field_desc.type_name).upper().replace('.', '_')
         type_name = env.get_ref_name(field_desc.type_name)
 
-        printerr('@@@')
-        printerr(type_name, full_name)
-        #printerr(type_name.split('.')[0].decode(), full_name.split('.')[0].decode())
-        printerr('###')
-
         if type_name.split('.')[0] == full_name.split('.')[0]:
             type_name = luasymbol(type_name.upper().replace(".","_"))
             enumValueSolver = containedEnumValue
@@ -448,7 +453,10 @@ def code_gen_file(proto_file, is_gen):
             selfPbName = pbName(env.filename)
 
             lua('local protobuf = require "protobuf"\n')
-            map(lua, map(lambda inc: 'local %s = require("%s")\n' % (inc, inc), env.includes))
+            map(lua, 
+                map(lambda inc: 'local %s = require("%s")\n' % (inc, inc), 
+                    unique(sorted(
+                        env.includes))))
             lua('module("%s")\n' % selfPbName)
             lua('local %s = {}\n' % _auxtable_)
 
