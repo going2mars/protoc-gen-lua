@@ -141,6 +141,7 @@ class Env(object):
     message = None
     context = None
     register = None
+    includes = None
     def __init__(self):
         self.message_tree = TreeNode('')
         self.scope = self.message_tree
@@ -205,6 +206,7 @@ class Env(object):
         self.context = []
         self.message = []
         self.register = []
+        self.includes = []
 
     def _build_nodes(self, node, names):
         parent = node
@@ -312,9 +314,19 @@ def code_gen_field(index, field_desc, env,includes):
     if field_desc.HasField('type_name'):
         #type_name = env.get_ref_name(field_desc.type_name).upper().replace('.', '_')
         type_name = env.get_ref_name(field_desc.type_name)
-        if not type_name.split('.')[0] in [filename+"_pb" for filename in includes]:
+
+        printerr('@@@')
+        printerr(type_name, full_name)
+        #printerr(type_name.split('.')[0].decode(), full_name.split('.')[0].decode())
+        printerr('###')
+
+        if type_name.split('.')[0] == full_name.split('.')[0]:
             type_name = luasymbol(type_name.upper().replace(".","_"))
             enumValueSolver = containedEnumValue
+        else:
+            outpb = '%s_pb' % type_name.split('.')[0]
+            env.includes.append(outpb)
+            type_name = '%s.%s' % (outpb, type_name)
         
         finalTypeName = type_name
         if field_desc.type == FDP.TYPE_MESSAGE:
@@ -436,12 +448,7 @@ def code_gen_file(proto_file, is_gen):
             selfPbName = pbName(env.filename)
 
             lua('local protobuf = require "protobuf"\n')
-            for i in includes:
-                lua('local %s = require("%s")\n' % (pbName(i), pbName(i)))
-            lua('\n')
-
-            lua('pcall(function() cc.exports["%s"]={} end)\n' % selfPbName)
-            lua('package.loaded["%s"] = nil\n' % selfPbName)
+            map(lua, map(lambda inc: 'local %s = require("%s")\n' % (inc, inc), env.includes))
             lua('module("%s")\n' % selfPbName)
             lua('local %s = {}\n' % _auxtable_)
 
@@ -480,3 +487,7 @@ def main():
 if __name__ == "__main__":
     main()
 
+'''
+lua('pcall(function() cc.exports["%s"]={} end)\n' % selfPbName)
+            lua('package.loaded["%s"] = nil\n' % selfPbName)
+'''
