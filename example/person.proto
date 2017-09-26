@@ -1,8 +1,9 @@
 import "grand.proto";
+package abc;
 
 message Person {
-  required Grade.Inner.InnerEnum persorInner = 1 [default = gi2];
-  extend Grade {
+  required com.game.Grade.Inner.InnerEnum persorInner = 1 [default = gi2];
+  extend com.game.Grade {
     optional Person ppp = 110;
   } 
 }

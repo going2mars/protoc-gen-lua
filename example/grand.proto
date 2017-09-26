@@ -1,4 +1,6 @@
 
+package com.game;
+
 message Grade {
     message Inner {
         enum InnerEnum {
