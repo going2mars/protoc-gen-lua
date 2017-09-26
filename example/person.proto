@@ -1,9 +1,18 @@
 import "grand.proto";
 package abc;
 
-message Person {
+message Student {
+  required int32 age = 1;
+  optional Perfect.Tttt ttinst = 2;
+}
+
+message Perfect {
   required com.game.Grade.Inner.InnerEnum persorInner = 1 [default = gi2];
   extend com.game.Grade {
-    optional Person ppp = 110;
-  } 
+    optional Perfect ppp = 110;
+  }
+  optional Student st = 2;
+  message Tttt{
+    required int32 tsts = 1;
+  }
 }
