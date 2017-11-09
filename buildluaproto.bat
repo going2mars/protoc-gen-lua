@@ -1,7 +1,7 @@
 @echo off
 
-set protoPath=..\proto
-set luascriptPath=..\luascript
+set protoPath=%~dp0..\proto
+set luascriptPath=%~dp0..\luascript
 
 for %%i in (%protoPath%\*.proto) do (
 	echo %%i
