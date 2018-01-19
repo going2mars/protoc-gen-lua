@@ -438,8 +438,6 @@ def code_gen_file(proto_file, env, is_gen):
             lua('local %s = require("%s")\n' % (pbName(i), pbName(i)))
         lua('\n')
 
-        lua('pcall(function() cc.exports["%s"]={} end)\n' % selfPbName)
-        lua('package.loaded["%s"] = nil\n' % selfPbName)
         lua('module("%s")\n' % selfPbName)
         lua('local %s = {}\n' % _auxtable_)
 
